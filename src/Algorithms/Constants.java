@@ -22,7 +22,7 @@ public class Constants {
     //Used for modular exponentiation hashing
     //I am not sure what number should be here but we are using SHA512 so I guess thats  where we take it from
     // no calculation power for that so 8 like 8 bits? NO FREAKING CLUE!!!!!!!!!
-    protected static int w = 8;
+    protected static int w = 16;
     // Number of dataset accesses during hashimoto
     protected static int access = 200;
     //Safe Prime for hashing and random number generation

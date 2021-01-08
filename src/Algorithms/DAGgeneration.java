@@ -1,7 +1,9 @@
 package Algorithms;
 
-import java.util.Arrays;
-import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+//import java.io.*;
 import domain.proof.hash.SHA512.SHA512;
 //import org.bouncycastle.jcajce.provider.digest.SHA3;
 
@@ -46,10 +48,16 @@ public class DAGgeneration {
 
     public static int[] createDaggGraph ( int seed, int lenght) {
         double P = Constants.P;
-        double init, picker;
-        picker = init = ((int) Math.pow(sha512(seed), Constants.w)) % P ;
+        int init, picker;
+        picker = init = (int) ((Math.pow(sha512(seed), Constants.w)) % P) ;
         // XOR here
-        int[] o = null;
+        int[] o = new int[] {(int) init};
+    	for(int i = 1; i < lenght; i++) {
+    		int x = (picker = (int) ((picker * init) % P));
+    		for(int j = 0; j< Constants.k; j++) {
+    			x ^=  o[(x % i)];
+    		}
+    	}
         return o;
 
     }
