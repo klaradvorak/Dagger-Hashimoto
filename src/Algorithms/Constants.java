@@ -1,8 +1,13 @@
 package Algorithms;
 
+import java.math.BigInteger;
+
 public class Constants {
     //Largest Safe Prime less than 2 to the power of 512
-    protected static double SAFE_PRIME_512 = ( Math.pow(2, 512) - 38117);
+    //protected static double SAFE_PRIME_512 = ( Math.pow(2, 512) - 38117);
+	private static BigInteger substractionValue = new BigInteger("38117");
+	//use BigInteger is it more accurate than double (double might drop small amounts)
+	private static BigInteger SAFE_PRIME_512 = new BigInteger("2").pow(512).subtract(substractionValue);
 
     //Size of the dataset (4 Gigabytes); MUST BE MULTIPLE OF 65536
     protected static long n = (( 4000055296L * 8 ) / DAGgeneration.NUMBER_OF_BITS);
@@ -26,7 +31,7 @@ public class Constants {
     // Number of dataset accesses during hashimoto
     protected static int access = 200;
     //Safe Prime for hashing and random number generation
-    public static double P = SAFE_PRIME_512;
+    public static BigInteger P = SAFE_PRIME_512;
 
 
 }

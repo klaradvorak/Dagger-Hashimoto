@@ -1,73 +1,89 @@
 package Algorithms;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
-//import java.io.*;
+import java.math.BigInteger;
+import java.util.LinkedList;
 import domain.proof.hash.SHA512.SHA512;
-//import org.bouncycastle.jcajce.provider.digest.SHA3;
 
-public class DAGgeneration {
+public class DAGgeneration { 
     protected static int  NUMBER_OF_BITS = 512;
+    private static BigInteger moduloValue= new BigInteger("256");
 
-    private static String encode_integer(int x) {
-        String o = "";
-        for (int i = 0; i <= (NUMBER_OF_BITS / 8); i++) {
-            o = (char)(x % 256) + o;
-            x /= 256;
+    private static String encode_integer(BigInteger x) {
+    	String o = "" ;
+        for (int i = 0; i < (NUMBER_OF_BITS / 8); i++) {
+            int modResult = (x.mod(moduloValue)).intValue();
+            if (modResult != 0) {
+            	o = (char) modResult + o;
+            	//System.out.println(modResult + " " + x);
+            	x = x.divide(moduloValue);
+            }
         }
         return o;
     }
 
-    private static Integer decode_integer(String s) {
-        int x = 0;
-
+    private static BigInteger decode_integer(String s) {
+        BigInteger x = new BigInteger("0");
         for (char c : s.toCharArray()) {
-            //System.out.println(c);
-            x *= 256;
-            x += (int) c;
+            //System.out.println(x + " " + BigInteger.valueOf(c));
+            x = x.multiply(moduloValue);
+            x = x.add(BigInteger.valueOf(c));
         }
         return x;
     }
 
-    protected static Integer sha512(int x) {
+    protected static BigInteger sha512(BigInteger x) {
         String s = null;
-        if (x == (int)x) {
+        if (x == (BigInteger)x) {
             s = encode_integer(x);
         }
         return decode_integer(SHA512.hash(s.getBytes()));
     }
 
-    protected static Integer doubleSha512(int x) {
+    protected static BigInteger doubleSha512(BigInteger x) {
         String s = null;
-        if (x == (int)x) {
+        if (x == (BigInteger)x) {
             s = encode_integer(x);
         }
         return decode_integer(SHA512.hash(SHA512.hash(s.getBytes()).getBytes()));
     }
 
-    public static int[] createDaggGraph ( int seed, int lenght) {
-        double P = Constants.P;
-        int init, picker;
-        picker = init = (int) ((Math.pow(sha512(seed), Constants.w)) % P) ;
+    public static LinkedList<BigInteger> createDaggGraph ( BigInteger seed, int lenght) {
+        BigInteger P = Constants.P;
+        BigInteger init, picker;
+        //picker = init = (int) ((Math.pow(sha512(seed), Constants.w)) % P) ;
+        picker = init = seed.pow(Constants.w).mod(P);
+        LinkedList<BigInteger> o = new LinkedList<BigInteger>() {{add(init);}};
+        
         // XOR here
-        int[] o = new int[] {(int) init};
     	for(int i = 1; i < lenght; i++) {
-    		int x = (picker = (int) ((picker * init) % P));
-    		for(int j = 0; j< Constants.k; j++) {
-    			x ^=  o[(x % i)];
+    		BigInteger x = picker = picker.multiply(init).mod(P);
+    		for(int j=0; j < Constants.k; j++) {
+    			//x ^=  o[(x % i)]
+    			x = x.modPow(o.getLast(), P);
     		}
+    		o.addLast(x.pow(Constants.w).mod(P));
+    		//System.out.println("x is : " + x);
     	}
         return o;
-
     }
 
     public static void main (String[] args) {
-        System.out.println(encode_integer(1097363306));
-        System.out.println(decode_integer("Ahoj"));
-        System.out.println("SHA3: " + sha512(1097363306));
-        System.out.println("Double SHA3: "+ doubleSha512(1097363306));
+    	
+    	System.out.println("decoder " + decode_integer("Hello there"));
 
-        System.out.println("Graph "+ createDaggGraph(1097363306, 2));
+        BigInteger big = new BigInteger("87521618088882658227876453");
+        System.out.println("encoder " + encode_integer(big));
+        
+        System.out.println("SHA3: " + sha512(big));
+        System.out.println("Double SHA3: "+ doubleSha512(big));
+
+        System.out.println("Graph "+ createDaggGraph(big, 10));
+
+        System.out.println();
+        System.out.println(Constants.P);
+        System.out.println((Constants.P).longValue());
+        System.out.println((Constants.P).doubleValue());
+       
+
     }
 }
